@@ -65,8 +65,8 @@ const Districts = [
     const [locateOn,setlocateOn] = useState(false);
     const [myLocation, setMyLocation] = useState(null);
     
-    const [longitude, setLongitude] = useState(23.696789);
-    const [latitude, setLatitude] = useState(90.399721);
+    const [longitude, setLongitude] = useState(78.9629);
+    const [latitude, setLatitude] = useState(20.5937);
     
 
     const getMyLocation = () => {
@@ -92,55 +92,77 @@ const Districts = [
      const submitIncident = async () => {
         const incidentType = document.getElementById('IncidentType').value;
         const incidentDate = document.getElementById('IncidentDate').value;
-        const incidentLocation = document.getElementById('LocationID').value;
         const incidentDescription = document.getElementById('IncidentDescription').value;
         const affected = document.getElementById('Affected').value;
         const incidentStatus = document.getElementById('IncidentStatus').value;
         const urgency = document.getElementById('Urgency').value;
-        console.log(incidentType, incidentDate, incidentLocation, incidentDescription, affected, incidentStatus, urgency);
+        
+        // Get location coordinates from state
+        const location = {
+          Coordinates: [longitude, latitude]
+        };
+        
         const incident = {
-          LocationID:  incidentLocation,
+          Location: location,
           IncidentType: incidentType,
           Description: incidentDescription,
+          CommunityID: null, // Add if needed
           ReportedBy: localStorage.getItem('user').UserID,
           DateReported: incidentDate,
           Urgency: urgency,
           Status: incidentStatus
+        };
+
+        try {
+          const response = await fetch('http://localhost:5000/api/v1/incident/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(incident)
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          console.log('Incident created:', data);
+          
+          // Refresh the incidents list
+          fetchIncidents();
+        } catch (error) {
+          console.error('Error creating incident:', error);
+          alert('Failed to create incident. Please try again.');
         }
-        await fetch('http://localhost:5000/api/v1/incident/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(incident)
-        })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data);
-          window.location.reload();
-        })
-
-
       }
 
+      const fetchIncidents = () => {
+        fetch('http://localhost:5000/api/v1/incident/')
+          .then(res => res.json())
+          .then(data => {
+            if (data.incidents) {
+              setIncidents(data.incidents);
+              const Maplocations = data.incidents.map(incident => {
+                if (incident.Location && incident.Location.Coordinates) {
+                  return {
+                    position: [incident.Location.Coordinates[1], incident.Location.Coordinates[0]],
+                    popupText: incident.Description
+                  };
+                }
+                return null;
+              }).filter(location => location !== null);
+              
+              // Add current location marker
+              Maplocations.push({position: [latitude, longitude], popupText: "You are here"});
+              setLocations(Maplocations);
+            }
+          })
+          .catch(error => console.error('Error fetching incidents:', error));
+      }
 
-      useEffect( () => {
-         fetch('http://localhost:5000/home/')
-        .then(res => res.json())
-        .then(data => {
-          setIncidents(data);
-          const Maplocations = data.MapLocation;
-          Maplocations.push({position: [latitude, longitude], popupText: "You are here"});
-          console.log(Maplocations);
-          
-          setLocations(Maplocations);
-          console.log(data);
-          
-        })
-
-         
-        
-        
+      useEffect(() => {
+        fetchIncidents();
       }, []);
 
       

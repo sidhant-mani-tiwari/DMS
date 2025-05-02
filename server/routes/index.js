@@ -4,10 +4,12 @@ const HomeRoute = require('./HomeRouter');
 const AuthRouter = require('./AuthRouter');
 const CommunityRouter = require('./CommunityRouter');
 const IncidentRoute = require('./IncidentRouter');
+const AnnouncementRouter = require('./AnnouncementRouter');
 
 router.use("/home",HomeRoute)
 router.use("/auth",AuthRouter)
 router.use("/community",CommunityRouter)
 router.use("/incident",IncidentRoute)
+router.use("/announcements", AnnouncementRouter)
 
 module.exports = router;

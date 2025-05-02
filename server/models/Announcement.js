@@ -5,6 +5,10 @@ const announcementSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    Title: {
+        type: String,
+        required: true
+    },
     Content: {
         type: String,
         required: true

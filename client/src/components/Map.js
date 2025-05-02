@@ -20,7 +20,8 @@ L.Icon.Default.mergeOptions({
 
 
 const Map = ({locations, longitude, latitude,defaultZoom }) => {
-  const defaultPosition  = [longitude, latitude]; // Default position [latitude, longitude]
+  const defaultPosition = [28.6139, 77.2090];
+ // Default position [latitude, longitude]
 
   return (
     <div className='map-container'>

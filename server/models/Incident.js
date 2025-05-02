@@ -18,9 +18,16 @@ const incidentSchema = new mongoose.Schema({
         default: 0
     },
 
-    LocationID: {
-        type: Number,
-        required: true
+    Location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
     },
     IncidentType: {
         type: String,

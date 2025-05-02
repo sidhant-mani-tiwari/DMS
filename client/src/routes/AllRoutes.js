@@ -1,6 +1,6 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
-
+import { useEffect } from 'react';
 import { Home, Community,MedicalHome } from '../pages';
 import { Header,Map,Footer,CommunityHome,
   CommunityForum,CommunityVolunteers,
@@ -8,14 +8,38 @@ import { Header,Map,Footer,CommunityHome,
 } from '../components';
 import {Auth} from '../pages/Auth';
 import { useState } from 'react';
-
-import { useSelector } from 'react-redux';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { changeRole } from '../store/roleSlice';
+import { Announcements } from '../components/Announcements';
+import { Donate } from '../components/Donate';
 
 export const AllRoutes = () => {
-    const username= 'Arafat';
+    const username= 'Sidhant';
     const isAdmin = useSelector(state => state.roleState.isAdmin);
     const loggedIn = useSelector(state => state.roleState.loggedIn);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        // Load authentication state from localStorage on app startup
+        const savedState = localStorage.getItem('authState');
+        if (savedState) {
+            const { isAdmin, role, loggedIn } = JSON.parse(savedState);
+            dispatch(changeRole({ isAdmin, role, loggedIn }));
+        }
+    }, [dispatch]);
+
+    // Save authentication state to localStorage whenever it changes
+    useEffect(() => {
+        if (loggedIn) {
+            localStorage.setItem('authState', JSON.stringify({
+                isAdmin,
+                role: 'user',
+                loggedIn
+            }));
+        } else {
+            localStorage.removeItem('authState');
+        }
+    }, [isAdmin, loggedIn]);
 
     const [myLocation, setMyLocation] = useState([23.7264, 90.3925]);
     
@@ -48,6 +72,8 @@ export const AllRoutes = () => {
         <Route path='/incidents' element={<Incidents/>} />
         <Route path='/medicals' element={ <Medicals/>} />
         <Route path='/medical/:id' element={ <MedicalHome/>} />
+        <Route path='/announcements' element={<Announcements />} />
+        <Route path='/donate' element={<Donate />} />
         <Route path='*' element={<h1>404 ! Page Not Found</h1>} />
     </Routes>
     <Footer />

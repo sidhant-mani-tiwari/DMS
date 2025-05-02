@@ -43,31 +43,33 @@ const updateIncident = async(req, res) => {
 
 const createIncident= async(req, res) => {
     try {
-        const {LocationID , 
-            IncidentType , 
-            Description, 
-            CommunityID, 
-            ReportedBy, 
-            DateReported, 
-            Urgency, Status
+        const {
+            Location,
+            IncidentType,
+            Description,
+            CommunityID,
+            ReportedBy,
+            DateReported,
+            Urgency,
+            Status
         } = req.body;
 
-        const count = await Incident.countDocuments();
-        const IncidentID = count + 1;
         try {
-            const newIncident = await Incident.create({ IncidentID ,LocationID , IncidentType , 
-                Description, 
-                CommunityID, 
-                ReportedBy, 
-                DateReported, 
-                Urgency, Status});
-                console.log(newIncident);
-                
-            res.status(201).json({newIncident });
-
+            const newIncident = await Incident.create({
+                Location,
+                IncidentType,
+                Description,
+                CommunityID,
+                ReportedBy,
+                DateReported,
+                Urgency,
+                Status
+            });
+            console.log(newIncident);
+            
+            res.status(201).json({ newIncident });
         } catch (error) {
             console.log(error);
-            
             res.status(500).json({ error: error.message });
         }
 

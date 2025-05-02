@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const connectionString = `mongodb+srv://TahmidulOmi:HackCSB01@dmscluster.m2afbo1.mongodb.net/DMSDatabase?retryWrites=true&w=majority&appName=DMSCluster`
+const connectionString = process.env.DB_URL;
 
 mongoose
     .connect(connectionString, {
