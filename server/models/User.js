@@ -36,12 +36,12 @@ const UserSchema = new mongoose.Schema({
         required: [true,"Address must be provided"]
     },
     UserType: {
-        type: [String],
-        required: [true,"UserType must be provided, it is array of strings"],
-        default: "affected", 
-        enum : {
-            values : ["admin","volunteer","donor","affected"],
-            message : `UserType is not supported, must be of : admin, volunteer, donor, affected`
+        type: [String], // Array of strings
+        required: [true, "UserType must be provided, it is array of strings"],
+        default: ["affected"], // Default to array, not string
+        enum: {
+            values: ["admin", "volunteer", "donor", "affected"],
+            message: `UserType is not supported, must be of: admin, volunteer, donor, affected`
         }
     },
     Available: {

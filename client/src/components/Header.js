@@ -17,7 +17,7 @@ export const Header= () => {
   const [showNotification, setShowNotification] = useState('none');
   const location = useLocation();
   console.log(location.pathname.split("/"));
-  const navBars= ['.nav-incidents','.nav-communities','.nav-announcements','.nav-medicals','.nav-donate' ];
+  const navBars= ['.nav-incidents','.nav-communities','.nav-announcements','.nav-medicals','.nav-donate','.nav-flood' ];
 
   const SetActive= (command)=>{
       navBars.forEach((bars)=>{
@@ -70,9 +70,12 @@ export const Header= () => {
                 <li className='nav-communities' >
                   <Link  to='/communities'>Community</Link></li>
 
-                <li className='nav-announcements' >
-                <Link to='/announcements'>Announcements</Link></li>
-
+                <div className='nav-announcements nav-active'>
+                  <Link to='/announcements'>Announcements</Link>
+                </div>
+                <div className='nav-flood'>
+                  <Link to='/flood'>Flood Risk</Link>
+                </div>
                 <li className='nav-medicals' >
                   <Link to='/medicals'>Medicals</Link></li>
 

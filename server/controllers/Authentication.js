@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const secretKey = 'HackCSBHackathon';
+const secretKey = 'sidhant123'; // Match with auth middleware
 
 
 const register = async( req, res) => {
@@ -45,32 +45,46 @@ const register = async( req, res) => {
 //     "Password":"HackCSB@1"
 // }
 
-const login = async( req, res) => {
-    const { Email , Password } = req.body;
-    console.log(Email);
-    console.log(Password);
-    
+const login = async (req, res) => {
+    const { Email, Password } = req.body;
     try {
         const user = await User.findOne({ Email });
-        console.log(user.Password);
-        console.log(user.Email);
-        if (user && Password === user.Password) {
-            const payload = {
-                UserID : user.UserID,
-                Address: user.Address
-            };
-            const token = jwt.sign(payload, secretKey, { expiresIn: '1h'})
-            res.status(200).json({ user , token });
-        } else {
-            res.status(401).json({ error: 'Invalid credentials' });
+        if (!user) {
+            return res.status(401).json({ error: 'User not found' });
         }
+
+        // Compare passwords
+        if (Password !== user.Password) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const payload = {
+            UserID: user.UserID,
+            Email: user.Email
+        };
+
+        const token = jwt.sign(payload, secretKey, { 
+            expiresIn: '1h',
+            algorithm: 'HS256'
+        });
+
+        res.status(200).json({ 
+            user: {
+                UserID: user.UserID,
+                Name: user.Name,
+                Email: user.Email,
+                UserType: user.UserType
+            },
+            token 
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-}
+};
 
 
 module.exports = {
     register,
-    login,
+    login
 }

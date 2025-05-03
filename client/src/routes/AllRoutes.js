@@ -1,45 +1,43 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Home, Community,MedicalHome } from '../pages';
-import { Header,Map,Footer,CommunityHome,
-  CommunityForum,CommunityVolunteers,
-  CommunityChat, Communities, Medicals ,Incidents
+import { Home, Community, MedicalHome } from '../pages';
+import { Header, Map, Footer, CommunityHome,
+  CommunityForum, CommunityVolunteers,
+  CommunityChat, Communities, Medicals, Incidents
 } from '../components';
-import {Auth} from '../pages/Auth';
+import { Auth } from '../pages/Auth';
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { changeRole } from '../store/roleSlice';
 import { Announcements } from '../components/Announcements';
 import { Donate } from '../components/Donate';
+import { FloodMap } from "../components/FloodMap";
+import { FloodHistory } from "../components/FloodHistory";
+import { useAuth } from '../context/AuthContext';
 
 export const AllRoutes = () => {
-    const username= 'Sidhant';
-    const isAdmin = useSelector(state => state.roleState.isAdmin);
-    const loggedIn = useSelector(state => state.roleState.loggedIn);
+    const { token, user, loading } = useAuth();
+    const isAdmin = user?.isAdmin || false;
+    const loggedIn = !!token;
     const dispatch = useDispatch();
 
     useEffect(() => {
-        // Load authentication state from localStorage on app startup
-        const savedState = localStorage.getItem('authState');
-        if (savedState) {
-            const { isAdmin, role, loggedIn } = JSON.parse(savedState);
-            dispatch(changeRole({ isAdmin, role, loggedIn }));
-        }
-    }, [dispatch]);
-
-    // Save authentication state to localStorage whenever it changes
-    useEffect(() => {
-        if (loggedIn) {
-            localStorage.setItem('authState', JSON.stringify({
-                isAdmin,
-                role: 'user',
-                loggedIn
+        // Update Redux state when auth state changes
+        if (user) {
+            dispatch(changeRole({
+                isAdmin: user.isAdmin,
+                role: user.role,
+                loggedIn: true
             }));
         } else {
-            localStorage.removeItem('authState');
+            dispatch(changeRole({
+                isAdmin: false,
+                role: 'guest',
+                loggedIn: false
+            }));
         }
-    }, [isAdmin, loggedIn]);
+    }, [user, dispatch]);
 
     const [myLocation, setMyLocation] = useState([23.7264, 90.3925]);
     
@@ -74,6 +72,8 @@ export const AllRoutes = () => {
         <Route path='/medical/:id' element={ <MedicalHome/>} />
         <Route path='/announcements' element={<Announcements />} />
         <Route path='/donate' element={<Donate />} />
+        <Route path='/flood' element={loggedIn ? <FloodMap /> : <Navigate to="/auth/login"/>} />
+        <Route path='/flood/history' element={loggedIn ? <FloodHistory /> : <Navigate to="/auth/login"/>} />
         <Route path='*' element={<h1>404 ! Page Not Found</h1>} />
     </Routes>
     <Footer />

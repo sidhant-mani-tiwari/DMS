@@ -1,53 +1,72 @@
 import "../assets/CSS/Register.css";
-import { useState } from "react";
-import DMS from "../api/DMS";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const Register=()=>{
+const Register = () => {
     const navigate = useNavigate();
-    const [name,setName]=useState("");
-    const [email,setEmail]=useState("");
-    const [phnNumber,setPhnNumber]=useState("");
-    const [thana,setThana]=useState("");
-    const [district,setDistrict]=useState("");
-    const [pass, setPass]=useState("");
-    const [address,setAddress]=useState("");
+    const { login, token } = useAuth();
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phnNumber, setPhnNumber] = useState("");
+    const [thana, setThana] = useState("");
+    const [district, setDistrict] = useState("");
+    const [pass, setPass] = useState("");
+    const [address, setAddress] = useState("");
+    const [error, setError] = useState("");
 
-    async function sendRegInfo(){
-        try{
-            const regInfo={
-                Name:name,
-                Email:email,
-                Phone:phnNumber,
-                Address:address + ", " + thana + ", " + district,
-                Password:pass,
+    useEffect(() => {
+        // If already logged in, redirect to home
+        if (token) {
+            navigate("/");
+        }
+    }, [navigate, token]);
+
+    async function sendRegInfo(e) {
+        e.preventDefault();
+        setError("");
+
+        try {
+            const regInfo = {
+                Name: name,
+                Email: email,
+                Phone: phnNumber,
+                Password: pass,
+                Address: address + ", " + thana + ", " + district,
                 UserType: ["affected"],
-                Available : true,
-                Community : [],
-                CreationTime : new Date().toISOString()
-            }
-            console.log(regInfo);
-            const response = await fetch("http://localhost:5000/api/v1/auth/register",{    
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
+                Available: true,
+                Community: [],
+                CreationTime: new Date().toISOString()
+            };
+
+            const response = await fetch("http://localhost:5000/api/v1/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
                 },
-                body:JSON.stringify(regInfo)
+                body: JSON.stringify(regInfo)
             });
-            console.log(response);
+
             const data = await response.json();
-            console.log(data);
-            console.log(response.status)
-            if(response.status === 201){
-                window.location.href = "/auth/login";                
-            }
-            else if(response.status === 500){
-                alert(data.error);
-            }
 
+            if (response.ok) {
+                // Try to automatically log in after successful registration
+                const loginSuccess = await login({
+                    Email: email,
+                    Password: pass
+                });
 
-        }catch(err){
-            console.log(err);
+                if (loginSuccess) {
+                    navigate("/");
+                } else {
+                    setError("Login failed after registration. Please try again.");
+                }
+            } else {
+                setError(data.error || "Registration failed. Please try again.");
+            }
+        } catch (err) {
+            console.error("Registration error:", err);
+            setError("An error occurred during registration. Please try again.");
         }
     }
 

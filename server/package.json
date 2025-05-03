@@ -4,12 +4,13 @@
   "description": "A disaster mmanagement system",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "dev": "node server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "author": "Arafat Omi Aveerup Saon",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.9.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -19,7 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.0",
-    "nodemon": "^3.1.9",
-    "socket.io": "^4.7.5"
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.7.5",
+    "uuid": "^11.1.0"
   }
 }

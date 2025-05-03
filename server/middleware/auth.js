@@ -1,38 +1,27 @@
-const jwt = require('jsonwebtoken')
-const secretKey = process.env.JWT_SECRET
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const secretKey = 'sidhant123';
 
-const authenticationMiddleware = async (req, res, next) => {
-    console.log('Authentication middleware')
-    const authHeader = req.headers.authorization
-  
+module.exports = async (req, res, next) => {
+    const authHeader = req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(401).json({ error: 'No token provided' });
     }
-  
-    const token = authHeader.split(' ')[1]
-  
+
+    const token = authHeader.replace('Bearer ', '');
     try {
-      const decoded = jwt.verify(token, secretKey)
-      const { UserID, Email } = decoded
- 
-      const user = await User.findById(UserID);
- 
-      if(!user || user.Email !== Email) {
-        return res.status(401).json({ message: 'Invalid user' });
-      }
-      console.log('Authentication Successfully verified')
-      req.user = { UserID: UserID, Email: Email };
-      next()
-    } 
-    
-    catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({ message: 'Token expired' });
-      }
-      res.status(401).json({ message: 'Authentication failed' })
+        const decoded = jwt.verify(token, secretKey);
+        
+        // Fetch user by UserID from the token payload
+        const user = await User.findOne({ UserID: decoded.UserID }); // Use correct field (UserID)
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+
+        req.user = user; // Attach user to req
+        next();
+    } catch (error) {
+        console.error('Token verification error:', error);
+        res.status(401).json({ error: 'Invalid token' });
     }
- 
-}
- 
-module.exports = authenticationMiddleware;
+};
